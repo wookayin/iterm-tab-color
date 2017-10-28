@@ -105,10 +105,10 @@ def to_rgb(s):
 
 
 def main():
-    if 'iTerm' not in os.environ.get('TERM_PROGRAM', ''):
-        sys.stderr.write("Warning: it has no effect without iTerm.app")
+    if 'iTerm' not in os.environ.get('TERM_PROGRAM', '') and not os.environ.get('SSH_CONNECTION', ''):
+        sys.stderr.write("Warning: it has no effect without iTerm.app\n")
     if 'TMUX' in os.environ:
-        sys.stderr.write("Warning: it has no effect inside a tmux session")
+        sys.stderr.write("Warning: it has no effect inside a tmux session\n")
 
     import argparse
     parser = argparse.ArgumentParser(description=__doc__)
