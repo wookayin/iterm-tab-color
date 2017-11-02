@@ -25,7 +25,6 @@ setup(
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
     ],
-    py_modules=['gpustat'],
     install_requires=install_requires,
     extras_require={'test': tests_requires},
     tests_require=tests_requires,
