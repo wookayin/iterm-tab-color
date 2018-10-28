@@ -7,9 +7,11 @@ iterm-tab-color
 * Hex codes: `iterm-tab-color "#4183C4"`
 * ANSI 256 colors: `iterm-tab-color 77`
 
+It works inside tmux too.
+
 
 ## Installation
 
 ```
-pip install git+https://github.com/wookayin/iterm-tab-color@master
+pip install iterm-tab-color
 ```

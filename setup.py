@@ -1,6 +1,6 @@
 from setuptools import setup
 
-__version__ = '0.1.0'
+__version__ = '0.3.0'
 
 install_requires = [
 ]
@@ -12,14 +12,13 @@ setup(
     name='iterm-tab-color',
     version=__version__,
     license='MIT',
-    description='iterm-tab-color',
+    description="Change iTerm2's tab color",
     url='https://github.com/wookayin/iterm-tab-color',
     author='Jongwook Choi',
     author_email='wookayin@gmail.com',
-    keywords='iterm',
+    keywords='iterm iterm2',
     classifiers=[
         # https://pypi.python.org/pypi?%3Aaction=list_classifiers
-        'Development Status :: 3 - Alpha',
         'License :: OSI Approved :: MIT License',
         'Operating System :: POSIX :: Linux',
         'Programming Language :: Python :: 2.7',
