@@ -9,6 +9,7 @@ from __future__ import print_function
 import random
 import sys
 import os
+import contextlib
 
 cnames = {
     'black':   '#000000',
@@ -76,16 +77,47 @@ cnames.update({  # noqa
 })
 
 
+# iTerm2 control sequence
+OSC = b'\033]'
+
+@contextlib.contextmanager
+def tmux_passthrough(buf, is_tmux=None):
+    if is_tmux is None:
+        is_tmux = 'TMUX' in os.environ
+
+    global OSC
+
+    if is_tmux:
+        buf.write(b'\033Ptmux;')
+        OSC = b'\033\033]'
+
+    yield
+
+    if is_tmux:
+        buf.write(b'\033\\')
+        OSC = b'\033]'
+        buf.flush()
+
+
 def set_tab_color(r, g, b):
-    if not all(isinstance(_, int) for _ in [r, g, b]):
+    if not all(isinstance(_, int) and 0 <= _ <= 255 for _ in [r, g, b]):
         raise TypeError("r, g, b should be int in range [0, 255]")
-    sys.stdout.write('\033]6;1;bg;red;brightness;%d\a' % r)
-    sys.stdout.write('\033]6;1;bg;green;brightness;%d\a' % g)
-    sys.stdout.write('\033]6;1;bg;blue;brightness;%d\a' % b)
+
+    buf = sys.stdout.buffer if sys.version_info[0] >= 3 \
+        else sys.stdout
+
+    with tmux_passthrough(buf):
+        buf.write(OSC + b'6;1;bg;red;brightness;%d\a' % r)
+        buf.write(OSC + b'6;1;bg;green;brightness;%d\a' % g)
+        buf.write(OSC + b'6;1;bg;blue;brightness;%d\a' % b)
 
 
 def reset_tab_color():
-    sys.stdout.write("\033]6;1;bg;*;default\a")
+    buf = sys.stdout.buffer if sys.version_info[0] >= 3 \
+        else sys.stdout
+
+    with tmux_passthrough(buf):
+        buf.write(OSC + b'6;1;bg;*;default\a')
 
 
 def to_rgb(s):
@@ -107,32 +139,40 @@ def to_rgb(s):
     raise ValueError("Unknown color: %s" % s)
 
 
-def main():
+def iterm_tab_color(*args):
+    '''
+    Accepts named colors (e.g. red, blue, green), hex code (e.g. #4183C4),
+    ANSI color code (e.g. 77), or whitespace-separated RGB values (e.g. 255 255 0).
+    '''
+
     if 'iTerm' not in os.environ.get('TERM_PROGRAM', '') and not os.environ.get('SSH_CONNECTION', ''):
         sys.stderr.write("Warning: it has no effect without iTerm.app\n")
-    if 'TMUX' in os.environ:
-        sys.stderr.write("Warning: it has no effect inside a tmux session\n")
 
-    import argparse
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('value', nargs='+')
-    args = parser.parse_args()
-
-    if args.value == ["reset"]:
+    if args == ("reset", ):
         reset_tab_color()
         return 0
 
-    if len(args.value) == 3:
-        r, g, b = map(int, args.value)
-    elif len(args.value) == 1:
+    elif len(args) == 1:
         try:
-            r, g, b = to_rgb(args.value[0])
+            r, g, b = to_rgb(args[0])
         except ValueError as e:
-            sys.stderr.write("Error: " + str(e))
+            sys.stderr.write("Error: " + str(e) + "\n")
             return 1
+    elif len(args) == 3:
+        r, g, b = map(int, args)
+    else:
+        raise TypeError("iterm_tab_color() takes 1 or 3 arguments")
 
     set_tab_color(r, g, b)
     return 0
+
+
+def main():
+    import argparse
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('value', nargs='+', help=iterm_tab_color.__doc__)
+    args = parser.parse_args()
+    iterm_tab_color(*args.value)
 
 
 if __name__ == '__main__':
