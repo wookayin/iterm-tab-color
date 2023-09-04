@@ -11,7 +11,8 @@ import sys
 import os
 import contextlib
 
-cnames = {
+cnames = {}
+cnames.update({
     'black':   '#000000',
     'maroon':  '#800000',
     'green':   '#008800',
@@ -28,9 +29,9 @@ cnames = {
     'magenta': '#ff00ff',
     'cyan':    '#00ffff',
     'white':   '#ffffff',
-}
+})
 
-cnames.update({  # noqa
+cnames.update({  # noqa  # type: ignore
   0: '#000000',    1: '#800000',   2: '#008000',   3: '#808000',   4: '#000080',   5: '#800080',
   6: '#008080',    7: '#c0c0c0',   8: '#808080',   9: '#ff0000',  10: '#00ff00',  11: '#ffff00',
   12: '#0000ff',  13: '#ff00ff',  14: '#00ffff',  15: '#ffffff',
