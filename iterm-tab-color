@@ -134,9 +134,20 @@ def to_rgb(s):
         s = cnames[int(s)]
 
     # hex --> rgb
-    if s.startswith('#'):
-        r, g, b = [int(s[1:][i:i+2], 16) for i in (0, 2, 4)]
+    # e.g., '#abcdef', 'abcdef'
+    def try_hex(s):
+        s = s.lstrip('#')
+        r, g, b = [int(s[i:i+2], 16) for i in (0, 2, 4)]
         return r, g, b
+
+    if s.startswith('#'):
+        return try_hex(s)
+
+    try:
+        return try_hex(s)
+    except ValueError:  # malformed hex
+        pass
+
     raise ValueError("Unknown color: %s" % s)
 
 
